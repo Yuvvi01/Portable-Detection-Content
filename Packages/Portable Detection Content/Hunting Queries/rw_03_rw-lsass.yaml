@@ -1,0 +1,17 @@
+id: 3fc6e172-397d-563e-9c18-9a3a6a762908
+name: "Ransomware Hunt - Prep - High Confidence LSASS Access"
+description: |
+  Hunting query template for ransomware intrusion tradecraft. Review context, user, host, parent process, sequence, and baseline before escalation.
+requiredDataConnectors:
+- connectorId: EndpointTelemetryConnector
+  dataTypes:
+  - "EndpointTelemetry"
+tactics:
+- CredentialAccess
+relevantTechniques:
+- T1003
+query: |
+  TgtProcName In Contains Anycase ("lsass.exe")
+  AND SrcProcName Not In Contains Anycase ("approved_security_tool", "edr_sensor", "backup_agent")
+  AND GrantedAccess In Contains Anycase ("0x1010", "0x1410", "0x143a", "0x1fffff", "0x1f0fff")
+version: 1.0.0

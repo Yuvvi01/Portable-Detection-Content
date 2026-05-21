@@ -1,0 +1,45 @@
+id: 59807751-226e-5d70-aff7-7d5cb281bc18
+name: "Ransomware Prep - Suspicious LSASS Handle Access"
+description: |
+  Detects non-approved processes opening LSASS with access rights commonly used for credential dumping. This rule requires process-access telemetry, not only process creation logs.
+severity: Critical
+status: Available
+requiredDataConnectors:
+- connectorId: EndpointTelemetryConnector
+  dataTypes:
+  - "EndpointTelemetry"
+queryFrequency: 1h
+queryPeriod: 4h
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+- CredentialAccess
+relevantTechniques:
+- T1003.001
+requiredFields:
+- TimeGenerated
+- Hostname
+- UserName
+- SourceProcessName
+- SourceProcessPath
+- TargetProcessName
+- GrantedAccess
+query: |
+  EndpointTelemetry
+  WHERE EventType IN~ ("process_access", "process_handle_open")
+  AND TargetProcessName =~ "lsass.exe"
+  AND SourceProcessName NOT IN~ ("approved_security_tool", "edr_sensor", "backup_agent")
+  AND GrantedAccess IN~ ("0x1010", "0x1410", "0x143a", "0x1fffff", "0x1f0fff")
+falsePositives:
+- EDR, backup, memory inspection, and forensic tooling
+tuning:
+- Maintain a hash/path allowlist for approved security tooling rather than only process names.
+- Increase confidence when dump file creation occurs within 10 minutes.
+responseActions:
+- Capture source process hash, parent process, and user logon context.
+- Search for credential dumping commands, dump files, and remote execution from the same host.
+customDetails:
+  Category: "RansomwareCredentialTheft"
+  DataSource: "EndpointTelemetry"
+version: 1.1.0
+kind: Scheduled

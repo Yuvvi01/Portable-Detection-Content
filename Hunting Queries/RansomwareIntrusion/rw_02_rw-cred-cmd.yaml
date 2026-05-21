@@ -1,0 +1,25 @@
+id: 4d49e16a-4095-5a01-9d67-d66e69050bbf
+name: "Ransomware Hunt - Prep - Credential Theft Command Patterns"
+description: |
+  Hunting query template for ransomware intrusion tradecraft. Review context, user, host, parent process, sequence, and baseline before escalation.
+requiredDataConnectors:
+- connectorId: EndpointTelemetryConnector
+  dataTypes:
+  - "EndpointTelemetry"
+tactics:
+- CredentialAccess
+relevantTechniques:
+- T1003
+- T1552
+- T1558
+query: |
+  CmdLine In Contains Anycase (
+    "mimikatz", "sekurlsa", "logonpasswords", "lsass", "MiniDump", "comsvcs.dll",
+    "procdump", "nanodump", "dumpert", "safetykatz", "sharpkatz", "pypykatz",
+    "lazagne", "donpapi", "sharpdpapi", "sharpchrome", "browserghost",
+    "webbrowserpassview", "mail passview", "wirelesskeyview", "reg save hklm\sam",
+    "reg save hklm\system", "reg save hklm\security", "ntds.dit", "ntdsutil",
+    "secretsdump", "lsassy", "crackmapexec", "netexec", "rubeus", "kekeo",
+    "kerberoast", "asreproast", "dcsync", "hashcat", "john"
+  )
+version: 1.0.0

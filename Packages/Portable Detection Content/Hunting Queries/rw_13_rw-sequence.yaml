@@ -1,0 +1,23 @@
+id: 57271659-1d7e-5c1e-976c-ec04a9661db1
+name: "Ransomware Hunt - Correlation - Credential Access to Lateral Movement to Backup Tampering"
+description: |
+  Hunting query template for ransomware intrusion tradecraft. Review context, user, host, parent process, sequence, and baseline before escalation.
+requiredDataConnectors:
+- connectorId: EndpointTelemetryConnector
+  dataTypes:
+  - "EndpointTelemetry"
+tactics:
+- CredentialAccess
+- LateralMovement
+- Impact
+relevantTechniques:
+- T1003
+- T1021
+- T1490
+- T1486
+query: |
+  SEQUENCE BY Hostname, UserName WITHIN 4 hours
+    [ CmdLine In Contains Anycase ("lsass", "mimikatz", "sekurlsa", "ntds.dit", "dcsync", "rubeus") ]
+    [ ProcessName In Contains Anycase ("psexec.exe", "wmic.exe", "powershell.exe", "schtasks.exe", "sc.exe") AND CmdLine In Contains Anycase ("Invoke-Command", "ADMIN$", "process call create") ]
+    [ CmdLine In Contains Anycase ("delete shadows", "wbadmin delete", "recoveryenabled no", "Remove-CimInstance", "file_renamed", "ransom note") ]
+version: 1.0.0

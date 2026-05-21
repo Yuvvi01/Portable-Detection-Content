@@ -1,0 +1,17 @@
+id: 887cc6c1-77f0-593b-876f-e3010ab02604
+name: "Ransomware Hunt - Encryption - Known Ransomware Extension Match"
+description: |
+  Hunting query template for ransomware intrusion tradecraft. Review context, user, host, parent process, sequence, and baseline before escalation.
+requiredDataConnectors:
+- connectorId: EndpointTelemetryConnector
+  dataTypes:
+  - "EndpointTelemetry"
+tactics:
+- Impact
+relevantTechniques:
+- T1486
+query: |
+  EventType In Contains Anycase ("file_renamed", "file_created")
+  AND TgtFileExtension In Watchlist("ransomware_extensions")
+  AND ProcessName Not In Contains Anycase ("approved_backup", "approved_restore", "approved_test_tool")
+version: 1.0.0

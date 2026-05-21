@@ -1,0 +1,52 @@
+id: 0e6f131b-26c6-4e67-9157-5d5f13257504
+name: "Malware Threat Intel - URL Indicator Match"
+description: |
+  Detects web, proxy, or endpoint URL activity matching active public URL indicators. This rule works best when URLs are normalized before lookup.
+severity: High
+status: Available
+requiredDataConnectors:
+- connectorId: PublicThreatIntelConnector
+  dataTypes:
+  - "PublicIOCs"
+- connectorId: WebTelemetryConnector
+  dataTypes:
+  - "WebTelemetry"
+queryFrequency: 1h
+queryPeriod: 24h
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+- InitialAccess
+- CommandAndControl
+relevantTechniques:
+- T1189
+- T1105
+requiredFields:
+- TimeGenerated
+- Hostname
+- UserName
+- Url
+- UrlPath
+- HttpHost
+- HttpStatusCode
+- PublicIOCs.value
+query: |
+  WebTelemetry
+  JOIN PublicIOCs ON NormalizedUrl = PublicIOCs.value OR UrlPath = PublicIOCs.value OR Url = PublicIOCs.value
+  WHERE PublicIOCs.type IN~ ("url", "uri", "path")
+  AND PublicIOCs.status =~ "active"
+  AND HttpStatusCode < 500
+falsePositives:
+- Blocked security validation
+- Benign references to malicious URLs in email gateways or sandboxes
+tuning:
+- Suppress analysis sandboxes and email security crawlers.
+- Increase severity if the URL delivered an executable, archive, script, or document payload.
+responseActions:
+- Capture URL, downloaded file hash, process lineage, and user session details.
+customDetails:
+  DataSource: "PublicThreatIntel"
+  RuleType: "Watchlist Match"
+  AttackType: "InitialAccess"
+version: 1.1.0
+kind: Scheduled

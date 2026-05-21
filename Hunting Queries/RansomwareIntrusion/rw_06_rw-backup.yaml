@@ -1,0 +1,19 @@
+id: 65cdb355-c3a7-5ae0-bd7b-c9875975589f
+name: "Ransomware Hunt - Impact - Backup and Recovery Tampering"
+description: |
+  Hunting query template for ransomware intrusion tradecraft. Review context, user, host, parent process, sequence, and baseline before escalation.
+requiredDataConnectors:
+- connectorId: EndpointTelemetryConnector
+  dataTypes:
+  - "EndpointTelemetry"
+tactics:
+- Impact
+- DefenseEvasion
+relevantTechniques:
+- T1490
+- T1489
+- T1070
+query: |
+  ProcessName In Contains Anycase ("vssadmin.exe", "wmic.exe", "wbadmin.exe", "bcdedit.exe", "diskshadow.exe", "powershell.exe", "sc.exe", "net.exe", "taskkill.exe", "wevtutil.exe", "vim-cmd", "esxcli", "govc", "PowerCLI", "aws.exe", "az.exe", "gcloud.exe")
+  AND CmdLine In Contains Anycase ("delete shadows", "shadowcopy delete", "delete catalog", "delete backup", "recoveryenabled no", "bootstatuspolicy ignoreallfailures", "Remove-CimInstance", "Win32_ShadowCopy", "stop vss", "stop wbengine", "stop veeam", "stop backup", "clear-log", "Remove-VMSnapshot", "DeleteRecoveryPoint", "vault delete")
+version: 1.0.0

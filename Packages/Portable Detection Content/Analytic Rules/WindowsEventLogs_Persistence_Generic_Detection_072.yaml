@@ -1,0 +1,27 @@
+id: 11b18200-829a-5442-a711-e1146872f068
+name: "WindowsEventLogs - Persistence - Generic Detection 072"
+description: |
+  Identifies generic persistence activity in WindowsEventLogs telemetry. This rule is a reusable template and should be tuned with locally approved thresholds, allowlists, and field mappings before production use.
+severity: High
+status: Available
+requiredDataConnectors:
+- connectorId: WindowsEventLogsConnector
+  dataTypes:
+  - "WindowsEventLogs"
+queryFrequency: 1h
+queryPeriod: 1h
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+- Persistence
+relevantTechniques:
+- T1053
+- T1547
+query: |
+  dataSource.name = 'WindowsEventLogs' AND event.category = 'system_change' AND (event.action contains 'startup' OR event.action contains 'scheduled' OR event.action contains 'service')
+customDetails:
+  DataSource: "WindowsEventLogs"
+  RuleType: "Single Event"
+  AttackType: "Persistence"
+version: 1.0.0
+kind: Scheduled

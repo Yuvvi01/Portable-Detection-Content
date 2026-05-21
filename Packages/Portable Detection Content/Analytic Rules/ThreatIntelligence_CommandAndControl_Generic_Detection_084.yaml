@@ -1,0 +1,27 @@
+id: a5595132-6b2e-506d-ba50-668db4599d3b
+name: "ThreatIntelligence - CommandAndControl - Generic Detection 084"
+description: |
+  Identifies generic command and control activity in ThreatIntelligence telemetry. This rule is a reusable template and should be tuned with locally approved thresholds, allowlists, and field mappings before production use.
+severity: Critical
+status: Available
+requiredDataConnectors:
+- connectorId: ThreatIntelligenceConnector
+  dataTypes:
+  - "ThreatIntelligence"
+queryFrequency: 1h
+queryPeriod: 1h
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+- CommandAndControl
+relevantTechniques:
+- T1071
+- T1105
+query: |
+  dataSource.name = 'ThreatIntelligence' AND event.category = 'network_activity' AND network.direction = 'outbound' AND (destination.reputation = 'suspicious' OR connection.pattern = 'rare')
+customDetails:
+  DataSource: "ThreatIntelligence"
+  RuleType: "Single Event"
+  AttackType: "CommandAndControl"
+version: 1.0.0
+kind: Scheduled

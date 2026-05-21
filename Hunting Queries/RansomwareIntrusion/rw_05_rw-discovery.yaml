@@ -1,0 +1,24 @@
+id: 2331fa46-b9be-50ef-aa81-b9e5d8d16a3f
+name: "Ransomware Hunt - Prep - Discovery and Attack Path Enumeration Tools"
+description: |
+  Hunting query template for ransomware intrusion tradecraft. Review context, user, host, parent process, sequence, and baseline before escalation.
+requiredDataConnectors:
+- connectorId: EndpointTelemetryConnector
+  dataTypes:
+  - "EndpointTelemetry"
+tactics:
+- Discovery
+relevantTechniques:
+- T1087
+- T1046
+- T1018
+- T1069
+query: |
+  ProcessName In Contains Anycase (
+    "sharphound.exe", "bloodhound.exe", "adfind.exe", "adrecon.ps1", "powerview.ps1",
+    "seatbelt.exe", "sharpview", "pingcastle", "nmap.exe", "masscan.exe", "netscan.exe",
+    "advanced_ip_scanner.exe", "angryip.exe", "softperfect", "nltest.exe", "dsquery.exe",
+    "net.exe", "whoami.exe", "quser.exe", "qwinsta.exe"
+  )
+  AND UserName Not In Contains Anycase ("approved_admin", "security_assessment", "vulnerability_scanner")
+version: 1.0.0

@@ -1,0 +1,27 @@
+id: 13ed373b-d4e2-51f5-88d6-6918161bea37
+name: "WindowsEventLogs - CommandAndControl - Generic Detection 013"
+description: |
+  Identifies generic command and control activity in WindowsEventLogs telemetry. This rule is a reusable template and should be tuned with locally approved thresholds, allowlists, and field mappings before production use.
+severity: High
+status: Available
+requiredDataConnectors:
+- connectorId: WindowsEventLogsConnector
+  dataTypes:
+  - "WindowsEventLogs"
+queryFrequency: 1h
+queryPeriod: 1h
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+- CommandAndControl
+relevantTechniques:
+- T1071
+- T1105
+query: |
+  dataSource.name = 'WindowsEventLogs' AND event.category = 'network_activity' AND network.direction = 'outbound' AND (destination.reputation = 'suspicious' OR connection.pattern = 'rare')
+customDetails:
+  DataSource: "WindowsEventLogs"
+  RuleType: "Single Event"
+  AttackType: "CommandAndControl"
+version: 1.0.0
+kind: Scheduled

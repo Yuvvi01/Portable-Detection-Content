@@ -1,0 +1,74 @@
+id: 680fa698-5ea5-50ba-a183-ad9a1f2a9db3
+name: "Web Attack Parameters - SSRF or LFI Probe Followed by Server Egress"
+description: |
+  Correlates requests containing high-risk SSRF or local file inclusion parameter names with outbound server-side network activity shortly after the request. This catches exploitation patterns where the application server is induced to fetch internal resources, metadata services, or attacker-controlled infrastructure.
+severity: High
+status: Available
+requiredDataConnectors:
+- connectorId: WebTelemetryConnector
+  dataTypes:
+  - "WebTelemetry"
+- connectorId: NetworkTelemetryConnector
+  dataTypes:
+  - "NetworkTelemetry"
+queryFrequency: 15m
+queryPeriod: 1h
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+- InitialAccess
+- Discovery
+- CommandAndControl
+relevantTechniques:
+- T1190
+- T1595
+- T1105
+requiredFields:
+- TimeGenerated
+- SrcIp
+- DstIp
+- HttpHost
+- Url
+- UrlQuery
+- HttpStatus
+- ServerHostname
+- DestinationPort
+query: |
+  LET HighRiskWebParams = dynamic([
+    "url","uri","path","dest","redirect","continue","next","data","reference",
+    "site","html","validate","domain","callback","return","page","feed","host",
+    "port","to","out","dir","file","download","folder","include","inc","doc",
+    "document","layout","conf"
+  ]);
+  WebTelemetry
+  WHERE HttpMethod IN~ ("GET", "POST")
+  AND UrlQuery HAS_ANY_PARAMETER HighRiskWebParams
+  AND UrlQuery HAS_ANY (
+    "169.254.169.254", "localhost", "127.0.0.1", "::1",
+    "/etc/passwd", "boot.ini", "win.ini", "../", "..%2f", "%2e%2e%2f",
+    "://", "file:", "gopher:", "dict:"
+  )
+  AND HttpStatus BETWEEN 200 AND 499
+  THEN NetworkTelemetry
+  WHERE NetworkDirection =~ "outbound"
+  AND DestinationPort IN (80, 443, 8080, 8443, 8000, 9000)
+  AND DstIp NOT IN approved_server_egress_destinations
+  WITHIN 10m BY ServerHostname
+falsePositives:
+- Proxy or URL preview features that intentionally fetch user-supplied URLs
+- Document conversion services that retrieve remote templates or assets
+- Vulnerability scanning from approved scanners
+tuning:
+- Add expected egress destinations for web servers, proxy services, and metadata-blocking controls.
+- Raise severity when requests target link-local, loopback, RFC1918, or cloud metadata address ranges.
+- Suppress approved scanner source IPs and synthetic monitoring.
+responseActions:
+- Review the triggering request, source IP, authenticated user, and application route.
+- Check web server egress logs for metadata access, internal host access, or unusual external callbacks.
+- Preserve application logs and test the affected endpoint with controlled inputs.
+customDetails:
+  DataSource: "WebTelemetry"
+  RuleType: "Behavioral Correlation"
+  AttackType: "SSRFLocalFileInclusion"
+version: 1.0.0
+kind: Scheduled

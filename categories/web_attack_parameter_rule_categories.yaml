@@ -1,0 +1,16 @@
+web_attack_parameter_rules_by_category:
+  "SSRFLocalFileInclusion":
+    - id: "680fa698-5ea5-50ba-a183-ad9a1f2a9db3"
+      name: "Web Attack Parameters - SSRF or LFI Probe Followed by Server Egress"
+      severity: "High"
+      path: "Detections/WebAttackParameters/web_01_owasp_ssrf_lfi_egress_correlation.yaml"
+  "SQLInjectionRemoteCodeExecution":
+    - id: "dade0a27-bc82-5312-9fa2-27b79caa00c3"
+      name: "Web Attack Parameters - SQLi or RCE Probe Followed by Server Error Spike"
+      severity: "High"
+      path: "Detections/WebAttackParameters/web_02_owasp_sqli_rce_error_correlation.yaml"
+  "OpenRedirectCrossSiteScripting":
+    - id: "801c2dae-931c-5704-9ec7-f0d77baed16e"
+      name: "Web Attack Parameters - Open Redirect Followed by Script Injection"
+      severity: "Medium"
+      path: "Detections/WebAttackParameters/web_03_owasp_redirect_xss_chain.yaml"

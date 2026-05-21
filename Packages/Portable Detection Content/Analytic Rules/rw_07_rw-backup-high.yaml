@@ -1,0 +1,45 @@
+id: 88886c9a-3861-5888-bfca-f39d4a2658b4
+name: "Ransomware Impact - High Confidence Recovery Sabotage"
+description: |
+  Detects highly specific recovery sabotage patterns. The query uses component matching to preserve detection value while avoiding dependence on one exact command line.
+severity: Critical
+status: Available
+requiredDataConnectors:
+- connectorId: EndpointTelemetryConnector
+  dataTypes:
+  - "EndpointTelemetry"
+queryFrequency: 1h
+queryPeriod: 4h
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+- Impact
+relevantTechniques:
+- T1490
+requiredFields:
+- TimeGenerated
+- Hostname
+- UserName
+- ProcessName
+- CmdLine
+query: |
+  EndpointTelemetry
+  WHERE
+    (ProcessName =~ "vssadmin.exe" AND CmdLine HAS_ALL~ ("delete", "shadows"))
+    OR (ProcessName =~ "wmic.exe" AND CmdLine HAS_ALL~ ("shadowcopy", "delete"))
+    OR (ProcessName =~ "wbadmin.exe" AND CmdLine HAS_ANY~ ("delete catalog", "delete systemstatebackup"))
+    OR (ProcessName =~ "bcdedit.exe" AND CmdLine HAS_ANY~ ("recoveryenabled no", "bootstatuspolicy ignoreallfailures"))
+    OR (ProcessName =~ "powershell.exe" AND CmdLine HAS_ALL~ ("Win32_ShadowCopy", "Remove-CimInstance"))
+falsePositives:
+- Rare disaster recovery testing
+- Authorized system recovery cleanup
+tuning:
+- This rule should have a narrow allowlist and ticket requirement.
+responseActions:
+- Treat as active incident unless a validated maintenance ticket exists.
+- Check for preceding credential theft and following file encryption events.
+customDetails:
+  Category: "RansomwareBackupTampering"
+  DataSource: "EndpointTelemetry"
+version: 1.1.0
+kind: Scheduled

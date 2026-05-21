@@ -1,0 +1,16 @@
+id: 2a0d760e-52e8-5975-96dc-6629c0480705
+name: "Generic suspicious script and network sequence"
+description: "Generic hunting template for reusable security monitoring."
+requiredDataConnectors:
+- connectorId: GenericTelemetryConnector
+  dataTypes:
+  - "GenericTelemetry"
+tactics:
+- Execution
+- CommandAndControl
+relevantTechniques:
+- T1059
+- T1105
+query: |
+  event.category = 'process_activity' AND process.type = 'script_interpreter' FOLLOWED_BY event.category = 'network_activity' AND network.direction = 'outbound' WITHIN 10m
+version: 1.0.0

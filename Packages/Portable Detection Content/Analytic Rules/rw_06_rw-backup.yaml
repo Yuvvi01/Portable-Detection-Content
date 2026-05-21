@@ -1,0 +1,46 @@
+id: 23df1543-6abe-59fc-a424-660c57f73dd7
+name: "Ransomware Impact - Backup and Recovery Tampering"
+description: |
+  Detects attempts to weaken recovery by deleting shadow copies, deleting backup catalogs, disabling recovery settings, stopping backup services, or tampering with backup and hypervisor tooling.
+severity: Critical
+status: Available
+requiredDataConnectors:
+- connectorId: EndpointTelemetryConnector
+  dataTypes:
+  - "EndpointTelemetry"
+queryFrequency: 1h
+queryPeriod: 4h
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+- Impact
+- DefenseEvasion
+relevantTechniques:
+- T1490
+- T1489
+- T1070
+requiredFields:
+- TimeGenerated
+- Hostname
+- UserName
+- ProcessName
+- CmdLine
+query: |
+  EndpointTelemetry
+  WHERE ProcessName IN~ ("vssadmin.exe", "wmic.exe", "wbadmin.exe", "bcdedit.exe", "diskshadow.exe", "powershell.exe", "sc.exe", "net.exe", "taskkill.exe", "wevtutil.exe", "vim-cmd", "esxcli", "govc", "powercli", "aws.exe", "az.exe", "gcloud.exe")
+  AND CmdLine HAS_ANY~ ("delete shadows", "shadowcopy delete", "delete catalog", "delete backup", "recoveryenabled no", "bootstatuspolicy ignoreallfailures", "Remove-CimInstance", "Win32_ShadowCopy", "stop vss", "stop wbengine", "stop veeam", "stop backup", "clear-log", "Remove-VMSnapshot", "DeleteRecoveryPoint", "vault delete")
+falsePositives:
+- Backup maintenance
+- Disaster recovery testing
+- Hypervisor administration
+tuning:
+- Allow only documented backup maintenance windows and service accounts.
+- Treat activity on backup servers, hypervisors, and domain controllers as critical.
+responseActions:
+- Stop related remote sessions and preserve backup platform logs.
+- Verify backup integrity and search for encryption behavior on adjacent file servers.
+customDetails:
+  Category: "RansomwareBackupTampering"
+  DataSource: "EndpointTelemetry"
+version: 1.1.0
+kind: Scheduled

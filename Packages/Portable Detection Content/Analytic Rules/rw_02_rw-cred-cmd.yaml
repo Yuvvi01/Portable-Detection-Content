@@ -1,0 +1,55 @@
+id: de6e8343-a035-59e3-a76f-20c9f87dd5f8
+name: "Ransomware Prep - Credential Theft Tooling and Dump Commands"
+description: |
+  Detects command-line patterns associated with credential dumping, LSASS dumping, registry hive export, Kerberos abuse, browser credential theft, and Active Directory database extraction.
+severity: Critical
+status: Available
+requiredDataConnectors:
+- connectorId: EndpointTelemetryConnector
+  dataTypes:
+  - "EndpointTelemetry"
+queryFrequency: 1h
+queryPeriod: 4h
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+- CredentialAccess
+relevantTechniques:
+- T1003
+- T1552
+- T1558
+requiredFields:
+- TimeGenerated
+- Hostname
+- UserName
+- ProcessName
+- CmdLine
+- ParentProcessName
+- ProcessPath
+query: |
+  EndpointTelemetry
+  WHERE CmdLine HAS_ANY~ (
+    "mimikatz", "sekurlsa", "logonpasswords", "lsass", "MiniDump", "comsvcs.dll",
+    "procdump", "nanodump", "dumpert", "safetykatz", "sharpkatz", "pypykatz",
+    "lazagne", "donpapi", "sharpdpapi", "sharpchrome", "browserghost",
+    "webbrowserpassview", "mail passview", "wirelesskeyview", "reg save hklm\\sam",
+    "reg save hklm\\system", "reg save hklm\\security", "ntds.dit", "ntdsutil",
+    "secretsdump", "lsassy", "crackmapexec", "netexec", "rubeus", "kekeo",
+    "kerberoast", "asreproast", "dcsync", "hashcat", "john"
+  )
+  AND ProcessPath NOT MATCHES approved_security_testing_paths
+falsePositives:
+- Authorized penetration testing
+- Digital forensics acquisition
+- Password audit tooling in controlled environments
+tuning:
+- Require change ticket or approved assessment tag for known testing tools.
+- Escalate immediately when observed on domain controllers, jump hosts, or executive workstations.
+responseActions:
+- Preserve process tree, command line, user logon, and file artifacts.
+- Check for dump files, outbound transfer, and lateral movement within the prior hour.
+customDetails:
+  Category: "RansomwareCredentialTheft"
+  DataSource: "EndpointTelemetry"
+version: 1.1.0
+kind: Scheduled

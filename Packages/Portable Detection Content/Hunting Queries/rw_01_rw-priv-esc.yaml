@@ -1,0 +1,31 @@
+id: baa710b7-7da2-526b-b38e-bbbcc3f077d4
+name: "Ransomware Hunt - Prep - Privilege Escalation Tooling and LOLBin Abuse"
+description: |
+  Hunting query template for ransomware intrusion tradecraft. Review context, user, host, parent process, sequence, and baseline before escalation.
+requiredDataConnectors:
+- connectorId: EndpointTelemetryConnector
+  dataTypes:
+  - "EndpointTelemetry"
+tactics:
+- PrivilegeEscalation
+- DefenseEvasion
+relevantTechniques:
+- T1068
+- T1548
+- T1053
+- T1543
+query: |
+  ProcessName In Contains Anycase (
+    "net.exe", "net1.exe", "runas.exe", "schtasks.exe", "sc.exe", "reg.exe",
+    "powershell.exe", "wmic.exe", "bcdedit.exe", "certutil.exe", "mshta.exe",
+    "rundll32.exe", "regsvr32.exe", "cmstp.exe", "fodhelper.exe",
+    "computerdefaults.exe", "eventvwr.exe", "sudo", "su", "chmod", "chown",
+    "pkexec", "setcap", "crontab", "systemctl", "launchctl"
+  )
+  AND CmdLine In Contains Anycase (
+    "localgroup administrators", "domain admins", "/add", "/create", "runas",
+    "SeImpersonatePrivilege", "SeDebugPrivilege", "ms-settings\Shell\Open\command",
+    "AlwaysInstallElevated", "SUID", "SGID", "sudoers", "setcap", "systemctl enable"
+  )
+  AND UserName Not In Contains Anycase ("approved_admin", "breakglass", "automation")
+version: 1.0.0

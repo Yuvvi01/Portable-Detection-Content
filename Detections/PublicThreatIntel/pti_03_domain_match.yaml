@@ -1,0 +1,54 @@
+id: 9d83820a-fbb5-46a6-a3f0-94ac015d3c03
+name: "Malware Threat Intel - Domain or Host Indicator Match"
+description: |
+  Detects DNS, proxy, firewall, or endpoint activity where requested hostnames match active public domain indicators.
+severity: High
+status: Available
+requiredDataConnectors:
+- connectorId: PublicThreatIntelConnector
+  dataTypes:
+  - "PublicIOCs"
+- connectorId: NetworkTelemetryConnector
+  dataTypes:
+  - "NetworkTelemetry"
+queryFrequency: 1h
+queryPeriod: 24h
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+- CommandAndControl
+relevantTechniques:
+- T1071
+- T1568
+requiredFields:
+- TimeGenerated
+- Hostname
+- UserName
+- DnsRequest
+- HttpHost
+- DstHostname
+- PublicIOCs.value
+query: |
+  NetworkTelemetry
+  JOIN PublicIOCs ON lower(DnsRequest) = lower(PublicIOCs.value)
+                  OR lower(HttpHost) = lower(PublicIOCs.value)
+                  OR lower(DstHostname) = lower(PublicIOCs.value)
+  WHERE PublicIOCs.type IN~ ("domain", "hostname", "fqdn")
+  AND PublicIOCs.status =~ "active"
+  AND DstHostname NOT IN~ approved_business_domains
+falsePositives:
+- Parked domains
+- Shared hosting
+- Internal testing against public indicators
+tuning:
+- Normalize domains to lower case and remove trailing dots before matching.
+- Increase severity when paired with executable download or unusual process network activity.
+responseActions:
+- Review DNS answer, resolved IP, process, and user context.
+- Block only after confirming business impact and indicator quality.
+customDetails:
+  DataSource: "PublicThreatIntel"
+  RuleType: "Watchlist Match"
+  AttackType: "CommandAndControl"
+version: 1.1.0
+kind: Scheduled

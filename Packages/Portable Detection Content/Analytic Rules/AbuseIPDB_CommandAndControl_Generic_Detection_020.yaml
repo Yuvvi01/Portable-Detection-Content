@@ -1,0 +1,27 @@
+id: 6771f78c-0fb3-5f78-b39d-70b17a159a05
+name: "AbuseIPDB - CommandAndControl - Generic Detection 020"
+description: |
+  Identifies generic command and control activity in AbuseIPDB telemetry. This rule is a reusable template and should be tuned with locally approved thresholds, allowlists, and field mappings before production use.
+severity: High
+status: Available
+requiredDataConnectors:
+- connectorId: AbuseIPDBConnector
+  dataTypes:
+  - "AbuseIPDB"
+queryFrequency: 1h
+queryPeriod: 1h
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+- CommandAndControl
+relevantTechniques:
+- T1071
+- T1105
+query: |
+  dataSource.name = 'AbuseIPDB' AND event.category = 'network_activity' AND network.direction = 'outbound' AND (destination.reputation = 'suspicious' OR connection.pattern = 'rare')
+customDetails:
+  DataSource: "AbuseIPDB"
+  RuleType: "Single Event"
+  AttackType: "CommandAndControl"
+version: 1.0.0
+kind: Scheduled

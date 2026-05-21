@@ -1,0 +1,14 @@
+id: 8b96137b-d2ef-5749-9643-d584869e9c2d
+name: "Generic lateral movement sequence"
+description: "Generic hunting template for reusable security monitoring."
+requiredDataConnectors:
+- connectorId: GenericTelemetryConnector
+  dataTypes:
+  - "GenericTelemetry"
+tactics:
+- LateralMovement
+relevantTechniques:
+- T1021
+query: |
+  event.category = 'remote_access' AND source.recent_risk = 'elevated' AND destination.asset_criticality != 'low'
+version: 1.0.0

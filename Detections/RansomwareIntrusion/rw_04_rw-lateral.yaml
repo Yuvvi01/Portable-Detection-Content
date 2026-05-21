@@ -1,0 +1,58 @@
+id: 16caa6b9-f265-59d1-af86-1a04cdab7f45
+name: "Ransomware Prep - Lateral Movement via Remote Administration"
+description: |
+  Detects suspicious remote execution or remote administration activity involving SMB admin shares, WMI, WinRM, RDP, scheduled tasks, services, PsExec-like tools, or RMM software.
+severity: High
+status: Available
+requiredDataConnectors:
+- connectorId: EndpointTelemetryConnector
+  dataTypes:
+  - "EndpointTelemetry"
+queryFrequency: 1h
+queryPeriod: 4h
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+- LateralMovement
+- Execution
+relevantTechniques:
+- T1021
+- T1570
+- T1569.002
+- T1053
+requiredFields:
+- TimeGenerated
+- Hostname
+- UserName
+- ProcessName
+- CmdLine
+- DestinationHost
+- DstPort
+query: |
+  EndpointTelemetry
+  WHERE ProcessName IN~ (
+    "psexec.exe", "paexec.exe", "wmic.exe", "wmiprvse.exe", "schtasks.exe", "sc.exe",
+    "powershell.exe", "mstsc.exe", "at.exe", "mmc.exe", "robocopy.exe", "xcopy.exe",
+    "anydesk.exe", "screenconnect.clientservice.exe", "teamviewer.exe", "ateraagent.exe",
+    "splashtop.exe", "simplehelp", "rustdesk", "dwservice", "meshcentral", "pdqdeploy"
+  )
+  AND (
+    CmdLine HAS_ANY~ ("\\\\", "/node:", "-ComputerName", "Invoke-Command", "Enter-PSSession", "New-PSSession", "/s ", "process call create", "ADMIN$", "C$", "IPC$", "PSEXESVC")
+    OR DstPort IN (445, 135, 3389, 5985, 5986)
+  )
+  AND UserName NOT IN~ ("approved_admin", "automation", "deployment_service")
+falsePositives:
+- Patch deployment
+- Remote support
+- Backup or inventory collection
+tuning:
+- Maintain approved RMM, deployment, and admin-share usage baselines by host group.
+- Increase severity when source host is a workstation and destination is a server tier.
+responseActions:
+- Identify source host, destination host, user, and credential source.
+- Review preceding credential access alerts and following service or task creation.
+customDetails:
+  Category: "RansomwareLateralMovement"
+  DataSource: "EndpointTelemetry"
+version: 1.1.0
+kind: Scheduled

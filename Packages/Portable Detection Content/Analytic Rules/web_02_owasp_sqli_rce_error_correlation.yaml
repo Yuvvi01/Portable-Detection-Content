@@ -1,0 +1,69 @@
+id: dade0a27-bc82-5312-9fa2-27b79caa00c3
+name: "Web Attack Parameters - SQLi or RCE Probe Followed by Server Error Spike"
+description: |
+  Detects concentrated SQL injection or remote command execution probing against common high-risk parameter names, followed by server-side error responses. The correlation focuses on exploit pressure and application instability rather than a single suspicious request.
+severity: High
+status: Available
+requiredDataConnectors:
+- connectorId: WebTelemetryConnector
+  dataTypes:
+  - "WebTelemetry"
+queryFrequency: 15m
+queryPeriod: 1h
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+- InitialAccess
+- Execution
+relevantTechniques:
+- T1190
+- T1059
+requiredFields:
+- TimeGenerated
+- SrcIp
+- HttpHost
+- Url
+- UrlQuery
+- HttpStatus
+- UserAgent
+query: |
+  LET InjectionParams = dynamic([
+    "id","page","dir","search","category","file","class","url","news","item",
+    "menu","lang","name","ref","title","view","topic","thread","type","date",
+    "form","join","main","nav","region","cmd","exec","command","execute","ping",
+    "query","jump","code","do","func","arg","option","load","process","step",
+    "read","function","req","feature","exe","module","payload","run"
+  ]);
+  WebTelemetry
+  WHERE UrlQuery HAS_ANY_PARAMETER InjectionParams
+  AND UrlQuery HAS_ANY (
+    "' or ", "\" or ", " union select ", " sleep(", " benchmark(",
+    "xp_cmdshell", "information_schema", "../", ";id", ";whoami",
+    "|id", "|whoami", "`id`", "$(", "%27", "%3b", "%7c"
+  )
+  SUMMARIZE RequestCount = COUNT(),
+            ErrorCount = COUNT_IF(HttpStatus BETWEEN 500 AND 599),
+            DistinctParams = DCOUNT(ExtractedParameterName),
+            DistinctUrls = DCOUNT(Url)
+    BY SrcIp, HttpHost, BIN(TimeGenerated, 10m)
+  WHERE RequestCount >= 8
+  AND ErrorCount >= 2
+  AND DistinctParams >= 2
+falsePositives:
+- Approved dynamic application security testing
+- QA fuzzing against test applications
+- Broken client integrations producing repeated malformed requests
+tuning:
+- Maintain allowlists for approved scanners and test source ranges.
+- Tune thresholds per internet-facing application and traffic volume.
+- Increase severity when requests hit authentication, upload, search, or administrative routes.
+responseActions:
+- Review WAF, application, and server logs for successful exploitation indicators.
+- Confirm whether error responses exposed stack traces or database errors.
+- Block or challenge abusive sources while validating the vulnerable route.
+customDetails:
+  DataSource: "WebTelemetry"
+  RuleType: "Behavioral Correlation"
+  AttackType: "SQLInjectionRemoteCodeExecution"
+version: 1.0.0
+kind: Scheduled

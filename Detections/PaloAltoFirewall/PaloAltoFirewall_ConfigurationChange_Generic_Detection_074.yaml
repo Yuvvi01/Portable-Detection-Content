@@ -1,0 +1,26 @@
+id: d451a14f-b3cc-5a3c-9a26-d883d7106910
+name: "PaloAltoFirewall - ConfigurationChange - Generic Detection 074"
+description: |
+  Identifies generic configuration change activity in PaloAltoFirewall telemetry. This rule is a reusable template and should be tuned with locally approved thresholds, allowlists, and field mappings before production use.
+severity: Medium
+status: Available
+requiredDataConnectors:
+- connectorId: PaloAltoFirewallConnector
+  dataTypes:
+  - "PaloAltoFirewall"
+queryFrequency: 1h
+queryPeriod: 1h
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+- DefenseEvasion
+relevantTechniques:
+- T1562
+query: |
+  dataSource.name = 'PaloAltoFirewall' AND event.category = 'configuration_change' AND event.outcome in ('success','allowed')
+customDetails:
+  DataSource: "PaloAltoFirewall"
+  RuleType: "Single Event"
+  AttackType: "ConfigurationChange"
+version: 1.0.0
+kind: Scheduled

@@ -1,0 +1,21 @@
+id: 30a13734-ffce-536b-9956-874ec2d8253d
+name: "Ransomware Hunt - Impact - High Confidence Backup Tampering Commands"
+description: |
+  Hunting query template for ransomware intrusion tradecraft. Review context, user, host, parent process, sequence, and baseline before escalation.
+requiredDataConnectors:
+- connectorId: EndpointTelemetryConnector
+  dataTypes:
+  - "EndpointTelemetry"
+tactics:
+- Impact
+relevantTechniques:
+- T1490
+query: |
+  (
+    (ProcessName In Contains Anycase ("vssadmin.exe") AND CmdLine In Contains Anycase ("delete", "shadows", "all", "quiet"))
+    OR (ProcessName In Contains Anycase ("wmic.exe") AND CmdLine In Contains Anycase ("shadowcopy", "delete"))
+    OR (ProcessName In Contains Anycase ("wbadmin.exe") AND CmdLine In Contains Anycase ("delete", "catalog", "systemstatebackup"))
+    OR (ProcessName In Contains Anycase ("bcdedit.exe") AND CmdLine In Contains Anycase ("set", "default", "recoveryenabled", "bootstatuspolicy", "ignoreallfailures"))
+    OR (ProcessName In Contains Anycase ("powershell.exe") AND CmdLine In Contains Anycase ("Win32_ShadowCopy", "Remove-CimInstance"))
+  )
+version: 1.0.0

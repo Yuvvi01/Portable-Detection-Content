@@ -1,0 +1,24 @@
+id: 714caa0c-31ef-5d9d-9205-5066bbeca0d2
+name: "GenericTelemetry - SecurityMonitoring - Generic Detection 077"
+description: |
+  Identifies generic security monitoring activity in GenericTelemetry telemetry. This rule is a reusable template and should be tuned with locally approved thresholds, allowlists, and field mappings before production use.
+severity: High
+status: Available
+requiredDataConnectors:
+- connectorId: GenericTelemetryConnector
+  dataTypes:
+  - "GenericTelemetry"
+queryFrequency: 1h
+queryPeriod: 1h
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+- Discovery
+query: |
+  dataSource.name = 'GenericTelemetry' AND event.category = 'security_activity' AND event.outcome in ('success','failure','allowed','blocked')
+customDetails:
+  DataSource: "GenericTelemetry"
+  RuleType: "Single Event"
+  AttackType: "SecurityMonitoring"
+version: 1.0.0
+kind: Scheduled

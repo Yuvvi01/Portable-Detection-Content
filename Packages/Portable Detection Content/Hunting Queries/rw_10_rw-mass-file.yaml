@@ -1,0 +1,19 @@
+id: 65f37b92-0831-50d0-b1c3-c7252a6bb659
+name: "Ransomware Hunt - Encryption - Mass File Modification or Rename"
+description: |
+  Hunting query template for ransomware intrusion tradecraft. Review context, user, host, parent process, sequence, and baseline before escalation.
+requiredDataConnectors:
+- connectorId: EndpointTelemetryConnector
+  dataTypes:
+  - "EndpointTelemetry"
+tactics:
+- Impact
+relevantTechniques:
+- T1486
+query: |
+  EventType In Contains Anycase ("file_modified", "file_renamed", "file_deleted", "file_created")
+  AND ProcessName Not In Contains Anycase ("approved_backup", "approved_indexer", "approved_deployment")
+  GROUP BY Hostname, UserName, ProcessName
+  HAVING COUNT(*) > 1000
+  WITHIN 15 minutes
+version: 1.0.0

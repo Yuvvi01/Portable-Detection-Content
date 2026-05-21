@@ -1,0 +1,27 @@
+id: 9510e9e0-3b66-50da-9f37-8e0664d5ca5e
+name: "EndpointTelemetry - DefenseEvasion - Generic Detection 059"
+description: |
+  Identifies generic defense evasion activity in EndpointTelemetry telemetry. This rule is a reusable template and should be tuned with locally approved thresholds, allowlists, and field mappings before production use.
+severity: High
+status: Available
+requiredDataConnectors:
+- connectorId: EndpointTelemetryConnector
+  dataTypes:
+  - "EndpointTelemetry"
+queryFrequency: 1h
+queryPeriod: 1h
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+- DefenseEvasion
+relevantTechniques:
+- T1070
+- T1562
+query: |
+  dataSource.name = 'EndpointTelemetry' AND event.category = 'security_control_activity' AND (event.action contains 'disable' OR event.action contains 'delete' OR event.action contains 'clear' OR event.action contains 'bypass')
+customDetails:
+  DataSource: "EndpointTelemetry"
+  RuleType: "Single Event"
+  AttackType: "DefenseEvasion"
+version: 1.0.0
+kind: Scheduled

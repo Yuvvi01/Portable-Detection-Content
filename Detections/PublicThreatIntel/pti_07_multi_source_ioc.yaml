@@ -1,0 +1,54 @@
+id: cb3a3389-2574-4eb9-9a72-e2a237862707
+name: "Threat Intel Correlation - Multi Source IOC Match"
+description: |
+  Detects observables present in more than one approved public source feed and observed in local telemetry. Multi-source matches improve confidence but still require context review.
+severity: Critical
+status: Available
+requiredDataConnectors:
+- connectorId: PublicThreatIntelConnector
+  dataTypes:
+  - "PublicIOCs"
+- connectorId: GenericTelemetryConnector
+  dataTypes:
+  - "GenericTelemetry"
+queryFrequency: 1h
+queryPeriod: 24h
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+- CommandAndControl
+- Execution
+- Exfiltration
+relevantTechniques:
+- T1071
+- T1105
+- T1041
+requiredFields:
+- TimeGenerated
+- Hostname
+- UserName
+- ObservableValue
+- PublicIOCs.value
+- PublicIOCs.source.name
+query: |
+  PublicIOCs
+  WHERE status =~ "active"
+  GROUP BY value
+  HAVING COUNT_DISTINCT(source.name) >= 2
+  JOIN GenericTelemetry ON ObservableValue = PublicIOCs.value
+  WHERE AssetExposure NOT IN~ ("approved_research", "sinkhole", "scanner")
+falsePositives:
+- Shared infrastructure
+- Research systems
+- Expired indicators still present in multiple feeds
+tuning:
+- Require recent last-seen dates and feed confidence when available.
+- Weight hash indicators higher than shared IP indicators.
+responseActions:
+- Review all matching feed sources and local activity around the observable.
+customDetails:
+  DataSource: "PublicThreatIntel"
+  RuleType: "Multi Source Match"
+  AttackType: "ThreatIntelCorrelation"
+version: 1.1.0
+kind: Scheduled

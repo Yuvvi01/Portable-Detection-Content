@@ -1,0 +1,55 @@
+id: 8e7c2079-427f-5b99-a7f4-f48cfa5b26b3
+name: "Ransomware Threat Intel - IOC Match With Execution or Network Context"
+description: |
+  Detects endpoint, DNS, URL, file hash, process, or network telemetry matching the ransomware IOC watchlist. Use this as enrichment-driven detection and prioritize matches with execution or outbound network context.
+severity: High
+status: Available
+requiredDataConnectors:
+- connectorId: EndpointTelemetryConnector
+  dataTypes:
+  - "EndpointTelemetry"
+queryFrequency: 1h
+queryPeriod: 24h
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+- CommandAndControl
+- InitialAccess
+- Execution
+relevantTechniques:
+- T1071
+- T1105
+- T1566
+requiredFields:
+- TimeGenerated
+- Hostname
+- UserName
+- SrcIp
+- DstIp
+- DnsRequest
+- Url
+- FileHash
+- ProcessName
+query: |
+  EndpointTelemetry
+  WHERE (
+    SrcIp IN Watchlist("ransomware_iocs") OR DstIp IN Watchlist("ransomware_iocs") OR
+    DnsRequest IN Watchlist("ransomware_iocs") OR Url IN Watchlist("ransomware_iocs") OR
+    FileHash IN Watchlist("ransomware_iocs") OR ProcessName IN Watchlist("ransomware_iocs")
+  )
+  AND EventResult NOT IN~ ("blocked_by_policy", "known_test")
+falsePositives:
+- Expired public indicators
+- Blocked connection attempts without execution
+- Security research systems
+tuning:
+- Filter expired indicators and require recent first-seen dates when available.
+- Escalate when IOC match is followed by execution, credential access, or backup tampering.
+responseActions:
+- Enrich indicator with source, first seen, and confidence.
+- Scope affected hosts and users before containment decisions.
+customDetails:
+  Category: "RansomwareThreatIntel"
+  DataSource: "EndpointTelemetry"
+version: 1.1.0
+kind: Scheduled

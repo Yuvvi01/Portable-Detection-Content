@@ -1,0 +1,56 @@
+id: e5ae2a46-7b46-4fa3-bd32-908ae7f9cb02
+name: "Malware Threat Intel - Suspicious IP Indicator Match"
+description: |
+  Detects network activity involving active public IP indicators. Matches should be prioritized by direction, process context, destination role, indicator freshness, and source confidence.
+severity: High
+status: Available
+requiredDataConnectors:
+- connectorId: PublicThreatIntelConnector
+  dataTypes:
+  - "PublicIOCs"
+- connectorId: NetworkTelemetryConnector
+  dataTypes:
+  - "NetworkTelemetry"
+queryFrequency: 1h
+queryPeriod: 24h
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+- CommandAndControl
+- Exfiltration
+relevantTechniques:
+- T1071
+- T1041
+requiredFields:
+- TimeGenerated
+- Hostname
+- UserName
+- SrcIp
+- DstIp
+- DstPort
+- NetworkDirection
+- PublicIOCs.value
+- PublicIOCs.type
+query: |
+  NetworkTelemetry
+  JOIN PublicIOCs ON SrcIp = PublicIOCs.value OR DstIp = PublicIOCs.value
+  WHERE PublicIOCs.type IN~ ("ip", "ipv4", "ipv6")
+  AND PublicIOCs.status =~ "active"
+  AND NetworkDirection IN~ ("outbound", "inbound")
+  AND AssetRole NOT IN~ ("approved_scanner", "gateway", "sinkhole", "research")
+falsePositives:
+- Shared hosting
+- CDN or sinkhole infrastructure
+- Security research traffic
+tuning:
+- Suppress indicators tagged as sinkhole, scanner, or expired.
+- Increase severity for outbound traffic from servers or privileged workstations.
+responseActions:
+- Review process responsible for the connection and DNS history.
+- Search for matching URL, domain, or hash indicators on the same host.
+customDetails:
+  DataSource: "PublicThreatIntel"
+  RuleType: "Watchlist Match"
+  AttackType: "CommandAndControl"
+version: 1.1.0
+kind: Scheduled

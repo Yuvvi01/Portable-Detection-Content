@@ -1,0 +1,53 @@
+id: aae762af-0a61-48d1-98a7-7b278985ed06
+name: "Malware Detection - Public Signature Match"
+description: |
+  Detects security alerts whose YARA, IDS, sandbox, or malware signature names match active public threat-intel signature references.
+severity: High
+status: Available
+requiredDataConnectors:
+- connectorId: PublicThreatIntelConnector
+  dataTypes:
+  - "PublicIOCs"
+- connectorId: SecurityAlertConnector
+  dataTypes:
+  - "SecurityAlert"
+queryFrequency: 1h
+queryPeriod: 24h
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+- Execution
+- CommandAndControl
+relevantTechniques:
+- T1204
+- T1071
+requiredFields:
+- TimeGenerated
+- Hostname
+- AlertName
+- AlertSeverity
+- SignatureName
+- RuleName
+- PublicIOCs.signature_name
+query: |
+  SecurityAlert
+  JOIN PublicIOCs ON lower(SignatureName) = lower(PublicIOCs.signature_name)
+                  OR lower(RuleName) = lower(PublicIOCs.signature_name)
+  WHERE PublicIOCs.type IN~ ("yara", "snort", "suricata", "signature")
+  AND PublicIOCs.status =~ "active"
+  AND AlertSeverity IN~ ("medium", "high", "critical")
+falsePositives:
+- Test signatures
+- Informational IDS rules
+- Duplicate alerts from multiple sensors
+tuning:
+- Suppress known test signatures and low-confidence public rules.
+- Increase severity when matched signature aligns with file hash, network, or URL IOC activity.
+responseActions:
+- Retrieve alert evidence, matched artifact, and source feed context.
+customDetails:
+  DataSource: "PublicThreatIntel"
+  RuleType: "Signature Match"
+  AttackType: "MalwareDetection"
+version: 1.1.0
+kind: Scheduled

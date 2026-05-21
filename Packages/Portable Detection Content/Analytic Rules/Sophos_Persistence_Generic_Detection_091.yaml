@@ -1,0 +1,27 @@
+id: 3f8d5da4-edf3-5a70-9d85-d91b23c2f836
+name: "Sophos - Persistence - Generic Detection 091"
+description: |
+  Identifies generic persistence activity in Sophos telemetry. This rule is a reusable template and should be tuned with locally approved thresholds, allowlists, and field mappings before production use.
+severity: High
+status: Available
+requiredDataConnectors:
+- connectorId: SophosConnector
+  dataTypes:
+  - "Sophos"
+queryFrequency: 1h
+queryPeriod: 1h
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+- Persistence
+relevantTechniques:
+- T1053
+- T1547
+query: |
+  dataSource.name = 'Sophos' AND event.category = 'system_change' AND (event.action contains 'startup' OR event.action contains 'scheduled' OR event.action contains 'service')
+customDetails:
+  DataSource: "Sophos"
+  RuleType: "Correlation"
+  AttackType: "Persistence"
+version: 1.0.0
+kind: Scheduled

@@ -1,0 +1,18 @@
+id: ec722cc6-6df5-59bf-a867-250e290fcd39
+name: "Ransomware Hunt - Exfiltration - File Transfer and Cloud Sync Tools"
+description: |
+  Hunting query template for ransomware intrusion tradecraft. Review context, user, host, parent process, sequence, and baseline before escalation.
+requiredDataConnectors:
+- connectorId: EndpointTelemetryConnector
+  dataTypes:
+  - "EndpointTelemetry"
+tactics:
+- Exfiltration
+relevantTechniques:
+- T1041
+- T1567
+- T1105
+query: |
+  ProcessName In Contains Anycase ("rclone.exe", "megacmd.exe", "megasync", "winscp.exe", "filezilla.exe", "pscp.exe", "psftp.exe", "scp.exe", "sftp.exe", "curl.exe", "wget.exe", "bitsadmin.exe", "certutil.exe", "azcopy.exe", "aws.exe", "gcloud.exe", "onedrive", "dropbox", "googledrive", "syncthing")
+  AND (Hostname In Contains Anycase ("file", "share", "backup", "finance", "hr", "legal") OR CmdLine In Contains Anycase ("copy", "sync", "upload", "--config", "--transfers", "s3://", "gs://"))
+version: 1.0.0

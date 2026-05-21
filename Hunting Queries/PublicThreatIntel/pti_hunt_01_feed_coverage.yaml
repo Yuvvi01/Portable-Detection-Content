@@ -1,0 +1,17 @@
+id: 6b5aca32-c725-4d62-bf2d-9fcf417be301
+name: "Public Threat Intel Hunt - Feed Coverage and Freshness"
+description: "Hunts for stale, empty, or imbalanced public IOC imports before detections rely on them."
+requiredDataConnectors:
+- connectorId: PublicThreatIntelConnector
+  dataTypes:
+  - "PublicIOCs"
+tactics:
+- ResourceDevelopment
+relevantTechniques:
+- T1588
+query: |
+  PublicIOCs
+  GROUP BY source.name, type, status
+  CALCULATE count_indicators = COUNT(value), newest_seen = MAX(last_seen), oldest_seen = MIN(first_seen)
+  WHERE count_indicators = 0 OR newest_seen OLDER_THAN 14d
+version: 1.0.0

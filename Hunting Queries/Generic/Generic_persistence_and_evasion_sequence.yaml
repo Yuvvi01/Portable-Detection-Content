@@ -1,0 +1,17 @@
+id: 851e70e1-0c53-5ab0-9804-e0a6a2a09291
+name: "Generic persistence and evasion sequence"
+description: "Generic hunting template for reusable security monitoring."
+requiredDataConnectors:
+- connectorId: GenericTelemetryConnector
+  dataTypes:
+  - "GenericTelemetry"
+tactics:
+- Persistence
+- DefenseEvasion
+relevantTechniques:
+- T1053
+- T1547
+- T1562
+query: |
+  event.category = 'persistence_change' FOLLOWED_BY event.category = 'security_control_activity' WITHIN 30m
+version: 1.0.0

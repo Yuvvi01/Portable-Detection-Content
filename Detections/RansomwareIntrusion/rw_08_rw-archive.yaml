@@ -1,0 +1,46 @@
+id: c65e9c50-8cac-5efc-a682-70ae3b313c47
+name: "Ransomware Staging - Suspicious Archive Creation"
+description: |
+  Detects archive creation that may indicate data staging before extortion or exfiltration. The rule requires both archive tooling and sensitive path or share context.
+severity: High
+status: Available
+requiredDataConnectors:
+- connectorId: EndpointTelemetryConnector
+  dataTypes:
+  - "EndpointTelemetry"
+queryFrequency: 1h
+queryPeriod: 4h
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+- Collection
+- Exfiltration
+relevantTechniques:
+- T1560
+- T1074
+requiredFields:
+- TimeGenerated
+- Hostname
+- UserName
+- ProcessName
+- CmdLine
+- FilePath
+query: |
+  EndpointTelemetry
+  WHERE ProcessName IN~ ("7z.exe", "rar.exe", "winrar.exe", "zip.exe", "tar.exe", "powershell.exe", "makecab.exe")
+  AND CmdLine HAS_ANY~ (" a ", " -a", "Compress-Archive", ".zip", ".7z", ".rar", ".tar")
+  AND (CmdLine HAS_ANY~ ("Finance", "HR", "Legal", "Payroll", "Customer", "Backup", "Share") OR FilePath MATCHES sensitive_share_paths)
+falsePositives:
+- Approved backups
+- Data migration
+- Legal or finance exports
+tuning:
+- Add approved archive jobs and backup software to allowlists.
+- Increase severity for password-protected archives or archive creation on file servers.
+responseActions:
+- Review archive destination, size, source directories, and subsequent transfer activity.
+customDetails:
+  Category: "RansomwareStagingExfiltration"
+  DataSource: "EndpointTelemetry"
+version: 1.1.0
+kind: Scheduled

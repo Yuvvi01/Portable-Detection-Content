@@ -1,0 +1,27 @@
+id: 08909163-9c80-51a8-821d-3f23cda54689
+name: "PaloAltoFirewall - CommandAndControl - Generic Detection 075"
+description: |
+  Identifies generic command and control activity in PaloAltoFirewall telemetry. This rule is a reusable template and should be tuned with locally approved thresholds, allowlists, and field mappings before production use.
+severity: Low
+status: Available
+requiredDataConnectors:
+- connectorId: PaloAltoFirewallConnector
+  dataTypes:
+  - "PaloAltoFirewall"
+queryFrequency: 1h
+queryPeriod: 1h
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+- CommandAndControl
+relevantTechniques:
+- T1071
+- T1105
+query: |
+  dataSource.name = 'PaloAltoFirewall' AND event.category = 'network_activity' AND network.direction = 'outbound' AND (destination.reputation = 'suspicious' OR connection.pattern = 'rare')
+customDetails:
+  DataSource: "PaloAltoFirewall"
+  RuleType: "Single Event"
+  AttackType: "CommandAndControl"
+version: 1.0.0
+kind: Scheduled

@@ -1,0 +1,32 @@
+{
+  "extension_count": 5494,
+  "ioc_count": 1552,
+  "ioc_types": {
+    "btc": 9,
+    "email": 20,
+    "ftp": 2,
+    "ip": 236,
+    "mail": 8,
+    "md5": 1070,
+    "pgp": 2,
+    "session": 8,
+    "sha1": 12,
+    "sha256": 113,
+    "telegram": 14,
+    "tox": 44,
+    "twitter": 4,
+    "url": 9,
+    "xmr": 1
+  },
+  "ransomware_groups": 77,
+  "trend_terms_used": [
+    "lateral movement",
+    "data exfiltration",
+    "ransom note"
+  ],
+  "source_files": [
+    "Ransomware Extensions.txt",
+    "Ransomware IOCs.xlsx",
+    "Ransomware Detection Trends 2025.pdf"
+  ]
+}

@@ -1,0 +1,27 @@
+id: f1bc3cad-5ba2-5c40-af4c-d83a839bbae1
+name: "GoogleCloud - PrivilegeEscalation - Generic Detection 005"
+description: |
+  Identifies generic privilege escalation activity in GoogleCloud telemetry. This rule is a reusable template and should be tuned with locally approved thresholds, allowlists, and field mappings before production use.
+severity: Medium
+status: Available
+requiredDataConnectors:
+- connectorId: GoogleCloudConnector
+  dataTypes:
+  - "GoogleCloud"
+queryFrequency: 1h
+queryPeriod: 1h
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+- PrivilegeEscalation
+relevantTechniques:
+- T1078
+- T1098
+query: |
+  dataSource.name = 'GoogleCloud' AND event.category = 'administrative_activity' AND (event.action contains 'role' OR event.action contains 'permission' OR event.action contains 'policy')
+customDetails:
+  DataSource: "GoogleCloud"
+  RuleType: "Single Event"
+  AttackType: "PrivilegeEscalation"
+version: 1.0.0
+kind: Scheduled

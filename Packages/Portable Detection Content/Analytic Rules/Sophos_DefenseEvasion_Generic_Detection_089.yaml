@@ -1,0 +1,27 @@
+id: 579087ed-773e-52b3-97ab-01cb496a36bf
+name: "Sophos - DefenseEvasion - Generic Detection 089"
+description: |
+  Identifies generic defense evasion activity in Sophos telemetry. This rule is a reusable template and should be tuned with locally approved thresholds, allowlists, and field mappings before production use.
+severity: Medium
+status: Available
+requiredDataConnectors:
+- connectorId: SophosConnector
+  dataTypes:
+  - "Sophos"
+queryFrequency: 1h
+queryPeriod: 1h
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+- DefenseEvasion
+relevantTechniques:
+- T1070
+- T1562
+query: |
+  dataSource.name = 'Sophos' AND event.category = 'security_control_activity' AND (event.action contains 'disable' OR event.action contains 'delete' OR event.action contains 'clear' OR event.action contains 'bypass')
+customDetails:
+  DataSource: "Sophos"
+  RuleType: "Single Event"
+  AttackType: "DefenseEvasion"
+version: 1.0.0
+kind: Scheduled

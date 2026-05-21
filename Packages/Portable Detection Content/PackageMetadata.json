@@ -1,0 +1,18 @@
+{
+  "publisherId": "community",
+  "offerId": "portable-detection-content",
+  "firstPublishDate": "2026-05-20",
+  "providers": [
+    "Generic"
+  ],
+  "categories": {
+    "domains": [
+      "Security - Threat Protection",
+      "Security - Automation"
+    ]
+  },
+  "support": {
+    "name": "Community",
+    "tier": "Community"
+  }
+}

@@ -1,0 +1,55 @@
+id: 573d1fe9-0d40-4d2c-8b41-4f2dbd6e9d01
+name: "Malware Threat Intel - File Hash Match With Local Context"
+description: |
+  Detects file, process, or download hashes matching active public IOC entries. This rule is intended for confirmed active feeds and should be paired with local execution or file-write context.
+severity: High
+status: Available
+requiredDataConnectors:
+- connectorId: PublicThreatIntelConnector
+  dataTypes:
+  - "PublicIOCs"
+- connectorId: EndpointTelemetryConnector
+  dataTypes:
+  - "EndpointTelemetry"
+queryFrequency: 1h
+queryPeriod: 24h
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+- Execution
+- CommandAndControl
+relevantTechniques:
+- T1204
+- T1105
+requiredFields:
+- TimeGenerated
+- Hostname
+- UserName
+- FileHash
+- ProcessName
+- ProcessPath
+- PublicIOCs.value
+- PublicIOCs.type
+- PublicIOCs.status
+query: |
+  EndpointTelemetry
+  JOIN PublicIOCs ON FileHash = PublicIOCs.value
+  WHERE PublicIOCs.type IN~ ("md5", "sha1", "sha256", "hash")
+  AND PublicIOCs.status =~ "active"
+  AND ProcessPath NOT MATCHES approved_internal_testing_paths
+falsePositives:
+- Malware lab testing
+- Security validation tools
+- Stale or low-confidence public indicators
+tuning:
+- Require active indicator status and a recent last-seen date when available.
+- Suppress known lab hosts and internal test repositories.
+responseActions:
+- Quarantine file when supported and validate hash with at least one additional source.
+- Scope other hosts with the same hash and review parent process lineage.
+customDetails:
+  DataSource: "PublicThreatIntel"
+  RuleType: "Watchlist Match"
+  AttackType: "MalwareExecution"
+version: 1.1.0
+kind: Scheduled

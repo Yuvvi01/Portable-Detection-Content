@@ -1,0 +1,49 @@
+id: e54b78aa-41b4-588e-bee3-cd01d80deea9
+name: "Ransomware Correlation - Credential Access to Impact Chain"
+description: |
+  Correlates credential access, lateral movement, and recovery sabotage or mass file modification within a single user or host context.
+severity: Critical
+status: Available
+requiredDataConnectors:
+- connectorId: EndpointTelemetryConnector
+  dataTypes:
+  - "EndpointTelemetry"
+queryFrequency: 1h
+queryPeriod: 6h
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+- CredentialAccess
+- LateralMovement
+- Impact
+relevantTechniques:
+- T1003
+- T1021
+- T1490
+- T1486
+requiredFields:
+- TimeGenerated
+- Hostname
+- UserName
+- ProcessName
+- CmdLine
+- EventType
+query: |
+  EndpointTelemetry
+  SEQUENCE BY Hostname, UserName WITHIN 4h
+    [ CmdLine HAS_ANY~ ("lsass", "mimikatz", "sekurlsa", "ntds.dit", "dcsync", "rubeus") ]
+    [ ProcessName IN~ ("psexec.exe", "wmic.exe", "powershell.exe", "schtasks.exe", "sc.exe") AND CmdLine HAS_ANY~ ("Invoke-Command", "ADMIN$", "process call create") ]
+    [ CmdLine HAS_ANY~ ("delete shadows", "wbadmin delete", "recoveryenabled no", "Remove-CimInstance") OR EventType IN~ ("file_renamed", "mass_file_modified") ]
+falsePositives:
+- Red team exercises
+- Disaster recovery testing combined with administrative troubleshooting
+tuning:
+- Require at least two distinct stages for high severity and all three stages for critical severity.
+responseActions:
+- Open a major incident workflow.
+- Contain affected hosts and preserve logs across identity, endpoint, network, backup, and file systems.
+customDetails:
+  Category: "RansomwareCorrelation"
+  DataSource: "EndpointTelemetry"
+version: 1.1.0
+kind: Scheduled

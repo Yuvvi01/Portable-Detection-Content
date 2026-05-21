@@ -1,0 +1,51 @@
+id: dec4266b-b6d0-59db-b875-3c92591aceec
+name: "Ransomware Prep - Discovery and Attack Path Enumeration"
+description: |
+  Detects tools and commands used to enumerate hosts, shares, users, groups, sessions, domain trusts, and attack paths before ransomware deployment.
+severity: Medium
+status: Available
+requiredDataConnectors:
+- connectorId: EndpointTelemetryConnector
+  dataTypes:
+  - "EndpointTelemetry"
+queryFrequency: 1h
+queryPeriod: 4h
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+- Discovery
+relevantTechniques:
+- T1087
+- T1046
+- T1018
+- T1069
+requiredFields:
+- TimeGenerated
+- Hostname
+- UserName
+- ProcessName
+- CmdLine
+query: |
+  EndpointTelemetry
+  WHERE ProcessName IN~ (
+    "sharphound.exe", "bloodhound.exe", "adfind.exe", "adrecon.ps1", "powerview.ps1",
+    "seatbelt.exe", "sharpview", "pingcastle", "nmap.exe", "masscan.exe", "netscan.exe",
+    "advanced_ip_scanner.exe", "angryip.exe", "softperfect", "nltest.exe", "dsquery.exe",
+    "net.exe", "whoami.exe", "quser.exe", "qwinsta.exe"
+  )
+  AND UserName NOT IN~ ("approved_admin", "security_assessment", "vulnerability_scanner")
+falsePositives:
+- Vulnerability scans
+- Domain administration
+- Asset inventory collection
+tuning:
+- Correlate with unusual user, unusual host, high fan-out, or activity outside business hours.
+- Suppress routine scans by known scanner hosts only.
+responseActions:
+- Review destination count, queried domains, command line, and parent process.
+- Hunt for credential access or lateral movement within the same user session.
+customDetails:
+  Category: "RansomwareDiscovery"
+  DataSource: "EndpointTelemetry"
+version: 1.1.0
+kind: Scheduled

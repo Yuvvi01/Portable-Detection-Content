@@ -1,0 +1,19 @@
+id: f9737e69-3b39-5768-a3cc-4c97d4aafe55
+name: "Ransomware Hunt - Staging - Archive Creation in Sensitive Paths"
+description: |
+  Hunting query template for ransomware intrusion tradecraft. Review context, user, host, parent process, sequence, and baseline before escalation.
+requiredDataConnectors:
+- connectorId: EndpointTelemetryConnector
+  dataTypes:
+  - "EndpointTelemetry"
+tactics:
+- Collection
+- Exfiltration
+relevantTechniques:
+- T1560
+- T1074
+query: |
+  ProcessName In Contains Anycase ("7z.exe", "rar.exe", "winrar.exe", "zip.exe", "tar.exe", "powershell.exe", "makecab.exe")
+  AND CmdLine In Contains Anycase (" a ", " -a", "Compress-Archive", ".zip", ".7z", ".rar", ".tar")
+  AND CmdLine In Contains Anycase ("Finance", "HR", "Legal", "Payroll", "Customer", "Backup", "Share")
+version: 1.0.0

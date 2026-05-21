@@ -1,0 +1,8 @@
+{"dataSource.name":"RabbitMQ","time":"2026-05-20T10:00:00Z","severity":"info","message":"connection accepted","connection.uid":"conn-001","process.name":"rabbitmq-server"}
+{"dataSource.name":"Redis","time":"2026-05-20T10:01:00Z","severity":"WARNING","message":"Possible SECURITY ATTACK detected from test source"}
+{"dataSource.name":"AWS Web Application Firewall","timestamp":1779271320000,"action":"BLOCK","terminatingRuleId":"ExampleRule","httpRequest":{"clientIp":"[IP_ADDRESS]","country":"ZZ","httpMethod":"GET","uri":"/example","args":"","httpVersion":"HTTP/1.1","requestId":"request-001","host":"[DOMAIN]","headers":[]}}
+{"dataSource.name":"Sophos Firewall","timestamp":"2026-05-20T10:03:00+0000","log_type":"Firewall","log_subtype":"Allowed","src_ip":"[IP_ADDRESS]","dst_ip":"[IP_ADDRESS]","protocol":"TCP","bytes_sent":"1000","bytes_received":"2000"}
+{"dataSource.name":"Palo Alto Networks Firewall","metadata.log_name":"TRAFFIC","src.ip.address":"[IP_ADDRESS]","dst.ip.address":"[IP_ADDRESS]","action":"allow","app_name":"ssl","traffic.bytes":"3000"}
+{"dataSource.name":"AKAMAI_WAF","rule.action":"monitor","network.protocol":"HTTPS","dst.hostname":"[DOMAIN]","http_request.url.full":"https://[DOMAIN]/example","src.ip.address":"[IP_ADDRESS]"}
+{"dataSource.name":"AWS RDS","metadata.log_level":"WARNING","database.name":"exampledb","actor.user.name":"[ENTITY]","status_detail":"synthetic warning event"}
+{"dataSource.name":"VmWare VCenter","severity":"info","device.hostname":"[ENTITY]","actor.user.name":"[ENTITY]","src.ip.address":"[IP_ADDRESS]","http_request.method":"GET","http_request.url.full":"/ui"}

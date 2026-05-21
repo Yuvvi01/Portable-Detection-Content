@@ -1,0 +1,26 @@
+id: 5f404b85-656f-5fa2-826f-e23e5534a2dd
+name: "Ransomware Hunt - Prep - Lateral Movement and Remote Administration Abuse"
+description: |
+  Hunting query template for ransomware intrusion tradecraft. Review context, user, host, parent process, sequence, and baseline before escalation.
+requiredDataConnectors:
+- connectorId: EndpointTelemetryConnector
+  dataTypes:
+  - "EndpointTelemetry"
+tactics:
+- LateralMovement
+- Execution
+relevantTechniques:
+- T1021
+- T1570
+- T1569
+- T1053
+query: |
+  ProcessName In Contains Anycase (
+    "psexec.exe", "paexec.exe", "wmic.exe", "wmiprvse.exe", "schtasks.exe", "sc.exe",
+    "powershell.exe", "mstsc.exe", "at.exe", "mmc.exe", "robocopy.exe", "xcopy.exe",
+    "anydesk.exe", "screenconnect.clientservice.exe", "teamviewer.exe", "ateraagent.exe",
+    "splashtop.exe", "simplehelp", "rustdesk", "dwservice", "meshcentral", "pdqdeploy"
+  )
+  AND (CmdLine In Contains Anycase ("\\", "/node:", "-ComputerName", "Invoke-Command", "Enter-PSSession", "New-PSSession", "/s ", "process call create", "ADMIN$", "C$", "IPC$", "PSEXESVC") OR DstPort In (445, 135, 3389, 5985, 5986))
+  AND UserName Not In Contains Anycase ("approved_admin", "automation", "deployment_service")
+version: 1.0.0

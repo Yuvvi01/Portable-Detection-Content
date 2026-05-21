@@ -1,0 +1,27 @@
+id: 7312a68d-7616-5c53-a077-d255cca4f56e
+name: "AWS - CommandAndControl - Generic Detection 031"
+description: |
+  Identifies generic command and control activity in AWS telemetry. This rule is a reusable template and should be tuned with locally approved thresholds, allowlists, and field mappings before production use.
+severity: Medium
+status: Available
+requiredDataConnectors:
+- connectorId: AWSConnector
+  dataTypes:
+  - "AWS"
+queryFrequency: 1h
+queryPeriod: 1h
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+- CommandAndControl
+relevantTechniques:
+- T1071
+- T1105
+query: |
+  dataSource.name = 'AWS' AND event.category = 'network_activity' AND network.direction = 'outbound' AND (destination.reputation = 'suspicious' OR connection.pattern = 'rare')
+customDetails:
+  DataSource: "AWS"
+  RuleType: "Single Event"
+  AttackType: "CommandAndControl"
+version: 1.0.0
+kind: Scheduled

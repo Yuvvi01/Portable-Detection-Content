@@ -1,0 +1,43 @@
+id: a384d9af-2d47-5511-a606-1ebc144058d4
+name: "Ransomware Encryption - Known Ransomware Extension Observed"
+description: |
+  Detects file rename or creation events where the resulting file extension matches the ransomware extension watchlist.
+severity: Critical
+status: Available
+requiredDataConnectors:
+- connectorId: EndpointTelemetryConnector
+  dataTypes:
+  - "EndpointTelemetry"
+queryFrequency: 15m
+queryPeriod: 30m
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+- Impact
+relevantTechniques:
+- T1486
+requiredFields:
+- TimeGenerated
+- Hostname
+- UserName
+- ProcessName
+- EventType
+- TargetFileExtension
+query: |
+  EndpointTelemetry
+  WHERE EventType IN~ ("file_renamed", "file_created")
+  AND TargetFileExtension IN Watchlist("ransomware_extensions")
+  AND ProcessName NOT IN~ ("approved_backup", "approved_restore", "approved_test_tool")
+falsePositives:
+- Malware lab testing
+- Controlled restore validation
+tuning:
+- Pair with count of affected files and directory breadth to reduce single-file noise.
+responseActions:
+- Isolate host and preserve affected file sample paths.
+- Search for ransom notes, backup tampering, and remote execution on nearby hosts.
+customDetails:
+  Category: "RansomwareEncryptionBehavior"
+  DataSource: "EndpointTelemetry"
+version: 1.1.0
+kind: Scheduled

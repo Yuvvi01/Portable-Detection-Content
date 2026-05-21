@@ -1,0 +1,36 @@
+{
+  "name": "Portable Detection Content",
+  "version": "1.0.0",
+  "analyticRules": 122,
+  "huntingQueries": 22,
+  "connectorNotes": 12,
+  "source": "Generic Portable Detection Templates",
+  "ransomwareRuleTemplates": 13,
+  "ransomwareHuntingQueries": 13,
+  "publicThreatIntelRules": 8,
+  "publicThreatIntelHuntingQueries": 4,
+  "publicThreatIntelSources": 7,
+  "webAttackParameterRules": 3,
+  "watchlists": {
+    "extensions": 5494,
+    "iocs": 1552,
+    "ioc_types": {
+      "btc": 9,
+      "email": 20,
+      "ftp": 2,
+      "ip": 236,
+      "mail": 8,
+      "md5": 1070,
+      "pgp": 2,
+      "session": 8,
+      "sha1": 12,
+      "sha256": 113,
+      "telegram": 14,
+      "tox": 44,
+      "twitter": 4,
+      "url": 9,
+      "xmr": 1
+    },
+    "groups": 77
+  }
+}

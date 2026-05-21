@@ -1,0 +1,27 @@
+id: a99d2bbe-33d2-51e4-a59b-290381bccd88
+name: "Sophos - PrivilegeEscalation - Generic Detection 082"
+description: |
+  Identifies generic privilege escalation activity in Sophos telemetry. This rule is a reusable template and should be tuned with locally approved thresholds, allowlists, and field mappings before production use.
+severity: Medium
+status: Available
+requiredDataConnectors:
+- connectorId: SophosConnector
+  dataTypes:
+  - "Sophos"
+queryFrequency: 1h
+queryPeriod: 1h
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+- PrivilegeEscalation
+relevantTechniques:
+- T1078
+- T1098
+query: |
+  dataSource.name = 'Sophos' AND event.category = 'administrative_activity' AND (event.action contains 'role' OR event.action contains 'permission' OR event.action contains 'policy')
+customDetails:
+  DataSource: "Sophos"
+  RuleType: "Correlation"
+  AttackType: "PrivilegeEscalation"
+version: 1.0.0
+kind: Scheduled

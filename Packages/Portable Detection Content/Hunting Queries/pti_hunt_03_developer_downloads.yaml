@@ -1,0 +1,25 @@
+id: 41430938-d59b-447b-ad92-96f5f7ff3833
+name: "Public Threat Intel Hunt - Source Hosting Downloads to Execution"
+description: "Hunts for developer-tool downloads from source hosting services followed by local script or interpreter execution."
+requiredDataConnectors:
+- connectorId: EndpointTelemetryConnector
+  dataTypes:
+  - "EndpointTelemetry"
+- connectorId: WebTelemetryConnector
+  dataTypes:
+  - "WebTelemetry"
+tactics:
+- InitialAccess
+- Execution
+relevantTechniques:
+- T1189
+- T1204
+query: |
+  WebTelemetry
+  WHERE http_request.hostname IN source_code_hosting_domains
+  AND url.path HAS_ANY ("raw", "release", "archive", "download")
+  THEN EndpointTelemetry
+  WHERE process.name IN script_interpreters
+  AND process.path MATCHES user_writable_paths
+  WITHIN 30m BY same_host, same_user
+version: 1.0.0

@@ -1,0 +1,46 @@
+id: 770d2220-86ae-5f4c-9e05-e07305221046
+name: "Ransomware Exfiltration - Suspicious Transfer or Cloud Sync Tooling"
+description: |
+  Detects file-transfer and cloud-sync tools on sensitive systems or with suspicious upload/sync command lines.
+severity: High
+status: Available
+requiredDataConnectors:
+- connectorId: EndpointTelemetryConnector
+  dataTypes:
+  - "EndpointTelemetry"
+queryFrequency: 1h
+queryPeriod: 4h
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+- Exfiltration
+relevantTechniques:
+- T1041
+- T1567
+- T1105
+requiredFields:
+- TimeGenerated
+- Hostname
+- UserName
+- ProcessName
+- CmdLine
+- DstIp
+- DstHostname
+query: |
+  EndpointTelemetry
+  WHERE ProcessName IN~ ("rclone.exe", "megacmd.exe", "megasync", "winscp.exe", "filezilla.exe", "pscp.exe", "psftp.exe", "scp.exe", "sftp.exe", "curl.exe", "wget.exe", "bitsadmin.exe", "certutil.exe", "azcopy.exe", "aws.exe", "gcloud.exe", "onedrive", "dropbox", "googledrive", "syncthing")
+  AND (Hostname HAS_ANY~ ("file", "share", "backup", "finance", "hr", "legal") OR CmdLine HAS_ANY~ ("copy", "sync", "upload", "--config", "--transfers", "s3://", "gs://"))
+falsePositives:
+- Approved file transfer jobs
+- Cloud backup agents
+- Developer or data engineering workflows
+tuning:
+- Baseline expected transfer tools by host role and user group.
+- Increase severity when preceded by archive creation or followed by backup tampering.
+responseActions:
+- Review destination, byte count, command line, credentials, and created archives.
+customDetails:
+  Category: "RansomwareStagingExfiltration"
+  DataSource: "EndpointTelemetry"
+version: 1.1.0
+kind: Scheduled

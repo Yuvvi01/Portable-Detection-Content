@@ -1,0 +1,25 @@
+id: 851ba379-7194-4eaa-a4d4-477ed9c5ab43
+name: "Public Threat Intel Hunt - Signature Hit Followed by Network Egress"
+description: "Hunts for public YARA or network signature hits followed by new external network activity from the same host."
+requiredDataConnectors:
+- connectorId: SecurityAlertConnector
+  dataTypes:
+  - "SecurityAlert"
+- connectorId: NetworkTelemetryConnector
+  dataTypes:
+  - "NetworkTelemetry"
+tactics:
+- Execution
+- CommandAndControl
+relevantTechniques:
+- T1204
+- T1071
+query: |
+  SecurityAlert
+  WHERE alert.source IN public_signature_sources
+  AND alert.severity IN ("medium", "high", "critical")
+  THEN NetworkTelemetry
+  WHERE network.direction = "outbound"
+  AND destination.reputation IN ("unknown", "suspicious", "malicious")
+  WITHIN 45m BY same_host
+version: 1.0.0

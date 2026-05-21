@@ -1,0 +1,61 @@
+id: fbcb5e1b-3c47-5e15-8973-b32b6c19b3c4
+name: "Ransomware Prep - Suspicious Privilege Escalation Activity"
+description: |
+  Identifies local or domain privilege-escalation behavior using administrative binaries, UAC bypass patterns, scheduled tasks, service creation, or Linux/macOS privilege changes. This rule is intended to detect suspicious context, not the presence of an administration tool alone.
+severity: High
+status: Available
+requiredDataConnectors:
+- connectorId: EndpointTelemetryConnector
+  dataTypes:
+  - "EndpointTelemetry"
+queryFrequency: 1h
+queryPeriod: 4h
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+- PrivilegeEscalation
+- DefenseEvasion
+relevantTechniques:
+- T1068
+- T1548
+- T1053
+- T1543
+requiredFields:
+- TimeGenerated
+- Hostname
+- UserName
+- ProcessName
+- CmdLine
+- ParentProcessName
+- ProcessPath
+query: |
+  EndpointTelemetry
+  WHERE ProcessName IN~ (
+    "net.exe", "net1.exe", "runas.exe", "schtasks.exe", "sc.exe", "reg.exe",
+    "powershell.exe", "wmic.exe", "bcdedit.exe", "certutil.exe", "mshta.exe",
+    "rundll32.exe", "regsvr32.exe", "cmstp.exe", "fodhelper.exe",
+    "computerdefaults.exe", "eventvwr.exe", "sudo", "su", "chmod", "chown",
+    "pkexec", "setcap", "crontab", "systemctl", "launchctl"
+  )
+  AND CmdLine HAS_ANY~ (
+    "localgroup administrators", "domain admins", "/add", "/create", "runas",
+    "SeImpersonatePrivilege", "SeDebugPrivilege", "ms-settings\\Shell\\Open\\command",
+    "AlwaysInstallElevated", "SUID", "SGID", "sudoers", "systemctl enable"
+  )
+  AND UserName NOT IN~ ("approved_admin", "breakglass", "automation")
+falsePositives:
+- Approved administrative maintenance
+- Software deployment jobs
+- Security assessment activity
+tuning:
+- Add privileged access management, deployment, and server administration accounts to local allowlists.
+- Raise severity when activity occurs on domain controllers, backup servers, hypervisors, or file servers.
+responseActions:
+- Confirm whether the account and host are expected for the change.
+- Review parent process, logon source, and recent authentication events.
+- Isolate the host if privilege escalation is followed by credential access or lateral movement.
+customDetails:
+  Category: "RansomwarePrivilegeEscalation"
+  DataSource: "EndpointTelemetry"
+version: 1.1.0
+kind: Scheduled

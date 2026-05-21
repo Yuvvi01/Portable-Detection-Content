@@ -1,0 +1,62 @@
+id: f1cbcb40-9564-4ebe-a6e0-cd58c39d5b08
+name: "Malware Delivery - IOC Match Followed by Local Execution"
+description: |
+  Correlates a public IOC network or URL match with execution from a user-writable path on the same host. This is higher fidelity than a standalone IOC hit.
+severity: Critical
+status: Available
+requiredDataConnectors:
+- connectorId: PublicThreatIntelConnector
+  dataTypes:
+  - "PublicIOCs"
+- connectorId: EndpointTelemetryConnector
+  dataTypes:
+  - "EndpointTelemetry"
+- connectorId: WebTelemetryConnector
+  dataTypes:
+  - "WebTelemetry"
+queryFrequency: 1h
+queryPeriod: 24h
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+- InitialAccess
+- Execution
+relevantTechniques:
+- T1189
+- T1204
+- T1105
+requiredFields:
+- TimeGenerated
+- Hostname
+- UserName
+- DstIp
+- HttpHost
+- Url
+- ProcessName
+- ProcessPath
+- PublicIOCs.value
+query: |
+  WebTelemetry
+  JOIN PublicIOCs ON DstIp = PublicIOCs.value OR HttpHost = PublicIOCs.value OR Url = PublicIOCs.value
+  WHERE PublicIOCs.status =~ "active"
+  AND EventAction IN~ ("download", "allowed", "observed")
+  THEN EndpointTelemetry
+  WHERE ProcessPath MATCHES user_writable_paths
+  AND ProcessName NOT IN~ approved_updaters
+  WITHIN 60m BY Hostname, UserName
+falsePositives:
+- Downloaded security test samples
+- Developer tooling from source repositories
+- Approved software installers
+tuning:
+- Suppress approved software update paths and internal test systems.
+- Increase severity for unsigned binaries, script interpreters, or suspicious parent processes.
+responseActions:
+- Quarantine executable if untrusted and preserve download evidence.
+- Hunt for the same IOC and file hash across the environment.
+customDetails:
+  DataSource: "PublicThreatIntel"
+  RuleType: "Behavioral Correlation"
+  AttackType: "InitialAccessExecution"
+version: 1.1.0
+kind: Scheduled

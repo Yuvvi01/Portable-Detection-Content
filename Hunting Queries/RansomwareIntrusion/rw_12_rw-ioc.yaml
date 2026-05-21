@@ -1,0 +1,19 @@
+id: 4e2d6dae-7d03-5ae3-838f-8648e4450dd4
+name: "Ransomware Hunt - Threat Intel - IOC Watchlist Match"
+description: |
+  Hunting query template for ransomware intrusion tradecraft. Review context, user, host, parent process, sequence, and baseline before escalation.
+requiredDataConnectors:
+- connectorId: EndpointTelemetryConnector
+  dataTypes:
+  - "EndpointTelemetry"
+tactics:
+- CommandAndControl
+- InitialAccess
+relevantTechniques:
+- T1071
+- T1105
+- T1566
+query: |
+  (SrcIp In Watchlist("ransomware_iocs") OR DstIp In Watchlist("ransomware_iocs") OR DnsRequest In Watchlist("ransomware_iocs") OR Url In Watchlist("ransomware_iocs") OR FileHash In Watchlist("ransomware_iocs") OR ProcessName In Watchlist("ransomware_iocs"))
+  AND EventResult Not In Contains Anycase ("blocked_by_policy", "known_test")
+version: 1.0.0

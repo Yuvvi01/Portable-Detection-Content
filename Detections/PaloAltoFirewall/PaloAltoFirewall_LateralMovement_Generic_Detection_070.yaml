@@ -1,0 +1,26 @@
+id: a66a1b66-d125-5c93-b178-bd24dd9b1941
+name: "PaloAltoFirewall - LateralMovement - Generic Detection 070"
+description: |
+  Identifies generic lateral movement activity in PaloAltoFirewall telemetry. This rule is a reusable template and should be tuned with locally approved thresholds, allowlists, and field mappings before production use.
+severity: Medium
+status: Available
+requiredDataConnectors:
+- connectorId: PaloAltoFirewallConnector
+  dataTypes:
+  - "PaloAltoFirewall"
+queryFrequency: 1h
+queryPeriod: 1h
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+- LateralMovement
+relevantTechniques:
+- T1021
+query: |
+  dataSource.name = 'PaloAltoFirewall' AND event.category = 'remote_access' AND (protocol in ('SMB','RDP','SSH','WinRM') OR event.action contains 'remote')
+customDetails:
+  DataSource: "PaloAltoFirewall"
+  RuleType: "Single Event"
+  AttackType: "LateralMovement"
+version: 1.0.0
+kind: Scheduled

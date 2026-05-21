@@ -1,0 +1,46 @@
+id: a35bb75f-d00f-50f8-91ec-3d2e04e360ae
+name: "Ransomware Encryption - High Volume File Modification"
+description: |
+  Detects a process performing high-volume file create, modify, rename, or delete activity in a short time window. This is a behavioral encryption or destructive activity signal.
+severity: Critical
+status: Available
+requiredDataConnectors:
+- connectorId: EndpointTelemetryConnector
+  dataTypes:
+  - "EndpointTelemetry"
+queryFrequency: 15m
+queryPeriod: 30m
+triggerOperator: gt
+triggerThreshold: 0
+tactics:
+- Impact
+relevantTechniques:
+- T1486
+requiredFields:
+- TimeGenerated
+- Hostname
+- UserName
+- ProcessName
+- EventType
+- FilePath
+query: |
+  EndpointTelemetry
+  WHERE EventType IN~ ("file_modified", "file_renamed", "file_deleted", "file_created")
+  AND ProcessName NOT IN~ ("approved_backup", "approved_indexer", "approved_deployment", "approved_dlp")
+  GROUP BY Hostname, UserName, ProcessName
+  HAVING COUNT(*) > 1000 WITHIN 15m
+falsePositives:
+- Backup jobs
+- Indexing services
+- Software deployment or migration tools
+tuning:
+- Tune thresholds separately for file servers, endpoints, and build servers.
+- Add entropy, extension, or directory breadth signals when available.
+responseActions:
+- Isolate host if activity is unexplained.
+- Preserve process hash, affected file list, and recent remote execution events.
+customDetails:
+  Category: "RansomwareEncryptionBehavior"
+  DataSource: "EndpointTelemetry"
+version: 1.1.0
+kind: Scheduled

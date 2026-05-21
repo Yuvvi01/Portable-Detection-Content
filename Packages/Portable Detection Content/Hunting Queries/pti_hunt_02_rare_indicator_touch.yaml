@@ -1,0 +1,22 @@
+id: 6dd3294a-0fa1-4635-8450-3452714b1702
+name: "Public Threat Intel Hunt - Rare Internal Host Touching Public IOC"
+description: "Hunts for rare hosts or users touching public indicators where no analytic threshold fired."
+requiredDataConnectors:
+- connectorId: PublicThreatIntelConnector
+  dataTypes:
+  - "PublicIOCs"
+- connectorId: GenericTelemetryConnector
+  dataTypes:
+  - "GenericTelemetry"
+tactics:
+- CommandAndControl
+relevantTechniques:
+- T1071
+query: |
+  GenericTelemetry
+  WHERE observable.value IN PublicIOCs.value
+  AND PublicIOCs.status = "active"
+  GROUP BY hostname, user.name, observable.value
+  HAVING COUNT(*) < 3
+  WITHIN 24h
+version: 1.0.0

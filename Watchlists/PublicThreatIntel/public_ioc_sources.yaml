@@ -1,0 +1,59 @@
+public_ioc_sources:
+  - name: "SophosLabs IoCs"
+    source_type: "research_ioc_repository"
+    url: "https://github.com/sophoslabs/IoCs"
+    expected_content: ["hash", "ip", "domain", "url", "malware_family", "ransomware"]
+    import_mode: "scheduled_pull_or_manual_review"
+  - name: "Cisco Talos IOCs"
+    source_type: "research_ioc_repository"
+    url: "https://github.com/Cisco-Talos/IOCs"
+    expected_content: ["hash", "ip", "domain", "url"]
+    import_mode: "scheduled_pull_or_manual_review"
+  - name: "Awesome IOCs"
+    source_type: "source_index"
+    url: "https://github.com/sroberts/awesome-iocs"
+    expected_content: ["source_catalog", "ioc_tools", "ioc_formats"]
+    import_mode: "reference_only"
+  - name: "Rewterz GitHub Hosted Malware Advisory"
+    source_type: "threat_advisory"
+    url: "https://rewterz.com/threat-advisory/60-github-repos-used-to-host-windows-malware-active-iocs"
+    expected_content: ["source_hosting_abuse", "developer_tool_impersonation", "windows_malware"]
+    import_mode: "manual_review"
+  - name: "SecurityTechie IOC Collection"
+    source_type: "community_ioc_collection"
+    url: "https://securitytechie.github.io/Indicators-of-Compromise-IOC-/"
+    expected_content: ["ip", "url"]
+    import_mode: "manual_review"
+  - name: "ESET Malware IOC"
+    source_type: "research_ioc_repository"
+    url: "https://github.com/eset/malware-ioc"
+    expected_content: ["hash", "yara", "snort", "malware_family"]
+    import_mode: "scheduled_pull_or_manual_review"
+  - name: "Latest Malware IoC"
+    source_type: "research_ioc_repository"
+    url: "https://github.com/GithubInfosec/latest-malware-IoC"
+    expected_content: ["hash", "ip", "domain", "url", "yara", "ioa"]
+    import_mode: "manual_review"
+
+normalized_schema:
+  required_fields:
+    - "value"
+    - "type"
+    - "source.name"
+    - "source.url"
+    - "status"
+  recommended_fields:
+    - "first_seen"
+    - "last_seen"
+    - "confidence"
+    - "malware_family"
+    - "campaign"
+    - "tags"
+    - "license"
+    - "tlp"
+    - "signature_name"
+  allowed_status_values:
+    - "active"
+    - "expired"
+    - "revoked"
+    - "testing"

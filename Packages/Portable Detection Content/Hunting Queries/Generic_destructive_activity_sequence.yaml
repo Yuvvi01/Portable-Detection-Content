@@ -1,0 +1,15 @@
+id: ec5ebcf1-3afe-5b2a-8234-3b5ceebae0bb
+name: "Generic destructive activity sequence"
+description: "Generic hunting template for reusable security monitoring."
+requiredDataConnectors:
+- connectorId: GenericTelemetryConnector
+  dataTypes:
+  - "GenericTelemetry"
+tactics:
+- Impact
+relevantTechniques:
+- T1486
+- T1490
+query: |
+  event.category = 'file_activity' AND file.change_rate = 'high' FOLLOWED_BY event.category = 'recovery_control_change' WITHIN 20m
+version: 1.0.0
